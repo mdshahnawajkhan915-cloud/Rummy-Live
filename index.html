@@ -1,0 +1,160 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Rummy</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#064532;color:white;font-family:Arial}
+header{text-align:center;padding:18px;background:#082c24}
+h1{color:#f5d078;margin:0;font-size:30px}
+main{max-width:650px;margin:auto;padding:14px}
+.box{background:#105c43;border:1px solid #39886b;border-radius:14px;padding:15px;margin:12px 0;text-align:center}
+.cards{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:15px 0}
+.card{width:43px;height:65px;background:white;color:#111;border-radius:6px;padding:5px;font-weight:bold;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 2px 4px #222}
+.red{color:#d21d36}
+.selected{outline:3px solid gold;transform:translateY(-7px)}
+button{padding:12px 14px;margin:5px;border:0;border-radius:8px;font-weight:bold;background:#f5cd68;color:#173b2c}
+button:disabled{opacity:.4}
+#message{color:#ffdf80;min-height:24px;font-weight:bold}
+.small{font-size:13px;color:#d5e8dc}
+</style>
+</head>
+<body>
+<header>
+<h1>♠ RUMMY ♥</h1>
+<p>13 Card Practice Game</p>
+</header>
+<main>
+<div class="box">
+<h3>Computer Players</h3>
+🤖 Player 2 &nbsp; 🤖 Player 3
+</div>
+<div class="box">
+<h3>Draw Pile</h3>
+<div id="stock">52 Cards</div>
+<h3>Discard Pile</h3>
+<div class="cards" id="discard"></div>
+<button onclick="draw(false)" id="stockBtn">Draw Card</button>
+<button onclick="draw(true)" id="pileBtn">Pick Discard</button>
+</div>
+<div class="box">
+<div id="message">Your turn: Pick a card</div>
+<p class="small">Your 13 Cards</p>
+<div class="cards" id="hand"></div>
+<button onclick="throwCard()" id="throwBtn" disabled>Discard Selected</button>
+<button onclick="newGame()">New Game</button>
+</div>
+<div class="box">
+<h3>How to Play</h3>
+<p class="small">Pick one card and discard one card. Make sequences and sets. Practice against computer players.</p>
+</div>
+</main>
+<script>
+let deck=[],hand=[],discard=[],selected=-1,drawn=false;
+
+const suits=[
+ {s:"♠",red:false},{s:"♥",red:true},
+ {s:"♦",red:true},{s:"♣",red:false}
+];
+
+function shuffle(a){
+ for(let i=a.length-1;i>0;i--){
+ let j=Math.floor(Math.random()*(i+1));
+ [a[i],a[j]]=[a[j],a[i]];
+ }
+ return a;
+}
+
+function name(c){
+ return (c.n===1?"A":c.n===11?"J":c.n===12?"Q":c.n===13?"K":c.n)+c.s;
+}
+
+function makeDeck(){
+ let d=[];
+ for(let s of suits){
+ for(let n=1;n<=13;n++){
+ d.push({n,s:s.s,red:s.red});
+ }
+ }
+ return shuffle(d);
+}
+
+function newGame(){
+ deck=makeDeck();
+ hand=deck.splice(0,13);
+ discard=[deck.pop()];
+ selected=-1;
+ drawn=false;
+ message("Your turn: Pick one card");
+ render();
+}
+
+function message(t){
+ document.getElementById("message").innerText=t;
+}
+
+function render(){
+ document.getElementById("hand").innerHTML=
+ hand.map((c,i)=>`
+ <div class="card ${c.red?'red':''} ${selected===i?'selected':''}"
+ onclick="selectCard(${i})">
+ <span>${name(c)}</span><span>${name(c)}</span>
+ </div>`).join("");
+
+ let c=discard[discard.length-1];
+ document.getElementById("discard").innerHTML=c?
+ `<div class="card ${c.red?'red':''}">${name(c)}</div>`:"";
+
+ document.getElementById("stock").innerText=deck.length+" Cards";
+ document.getElementById("stockBtn").disabled=drawn;
+ document.getElementById("pileBtn").disabled=drawn||!discard.length;
+ document.getElementById("throwBtn").disabled=!drawn||selected<0;
+}
+
+function selectCard(i){
+ selected=i;
+ render();
+}
+
+function draw(fromPile){
+ if(drawn)return;
+ if(fromPile){
+ if(!discard.length)return;
+ hand.push(discard.pop());
+ }else{
+ if(!deck.length){
+ message("Cards finished. Start a new game.");
+ return;
+ }
+ hand.push(deck.pop());
+ }
+ drawn=true;
+ selected=-1;
+ message("Select a card to discard");
+ render();
+}
+
+function throwCard(){
+ if(!drawn||selected<0)return;
+ discard.push(hand.splice(selected,1)[0]);
+ selected=-1;
+ drawn=false;
+ message("Computer is playing...");
+ render();
+ setTimeout(()=>{
+ if(deck.length){
+ deck.pop();
+ if(deck.length)discard.push(deck.pop());
+ }
+ message("Your turn: Pick one card");
+ render();
+ },1000);
+}
+
+newGame();
+</script>
+</body>
+</html>
