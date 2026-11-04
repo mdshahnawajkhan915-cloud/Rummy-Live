@@ -1,160 +1,415 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Rummy</title>
+<title>RUMMY LIVE</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#064532;color:white;font-family:Arial}
-header{text-align:center;padding:18px;background:#082c24}
-h1{color:#f5d078;margin:0;font-size:30px}
-main{max-width:650px;margin:auto;padding:14px}
-.box{background:#105c43;border:1px solid #39886b;border-radius:14px;padding:15px;margin:12px 0;text-align:center}
-.cards{display:flex;justify-content:center;flex-wrap:wrap;gap:6px;margin:15px 0}
-.card{width:43px;height:65px;background:white;color:#111;border-radius:6px;padding:5px;font-weight:bold;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 2px 4px #222}
-.red{color:#d21d36}
-.selected{outline:3px solid gold;transform:translateY(-7px)}
-button{padding:12px 14px;margin:5px;border:0;border-radius:8px;font-weight:bold;background:#f5cd68;color:#173b2c}
-button:disabled{opacity:.4}
-#message{color:#ffdf80;min-height:24px;font-weight:bold}
-.small{font-size:13px;color:#d5e8dc}
+body{margin:0;background:#071b16;color:white;font-family:Arial}
+header{background:#09291e;text-align:center;padding:20px;border-bottom:2px solid #d8b64f}
+h1{color:#f4cf67;margin:0;letter-spacing:3px}
+main{max-width:950px;margin:auto;padding:12px}
+.panel{background:#102b23;border:1px solid #315748;border-radius:13px;padding:15px;margin:12px 0}
+input{width:100%;padding:12px;margin:5px 0;background:#071b16;color:white;border:1px solid #315748;border-radius:8px}
+button{padding:12px;margin:4px;border:0;border-radius:8px;background:#f4cf67;color:#17251c;font-weight:bold;cursor:pointer}
+.alt{background:#285443;color:white}
+.danger{background:#853c3c;color:white}
+.gold{color:#f4cf67}
+.muted{color:#b8c8bf}
+.hide{display:none}
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px}
+.game{background:#174333;color:white;border:1px solid #396451;text-align:left;min-height:75px}
+.game b{display:block;color:#f4cf67;margin-bottom:6px}
+.result{font-size:21px;color:#f4cf67;margin:18px}
+.cards{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
+.card{background:white;color:#111;padding:12px;border-radius:6px}
+.stat{font-size:24px;color:#f4cf67}
+table{width:100%;font-size:13px}
+td,th{padding:8px;border-bottom:1px solid #315748;text-align:left}
+footer{text-align:center;padding:20px;color:#b8c8bf}
 </style>
 </head>
 <body>
 <header>
-<h1>♠ RUMMY ♥</h1>
-<p>13 Card Practice Game</p>
+<h1>RUMMY LIVE</h1>
+<p class="muted">20 Virtual Practice Games</p>
 </header>
 <main>
-<div class="box">
-<h3>Computer Players</h3>
-🤖 Player 2 &nbsp; 🤖 Player 3
-</div>
-<div class="box">
-<h3>Draw Pile</h3>
-<div id="stock">52 Cards</div>
-<h3>Discard Pile</h3>
-<div class="cards" id="discard"></div>
-<button onclick="draw(false)" id="stockBtn">Draw Card</button>
-<button onclick="draw(true)" id="pileBtn">Pick Discard</button>
-</div>
-<div class="box">
-<div id="message">Your turn: Pick a card</div>
-<p class="small">Your 13 Cards</p>
-<div class="cards" id="hand"></div>
-<button onclick="throwCard()" id="throwBtn" disabled>Discard Selected</button>
-<button onclick="newGame()">New Game</button>
-</div>
-<div class="box">
-<h3>How to Play</h3>
-<p class="small">Pick one card and discard one card. Make sequences and sets. Practice against computer players.</p>
-</div>
-</main>
-<script>
-let deck=[],hand=[],discard=[],selected=-1,drawn=false;
 
-const suits=[
- {s:"♠",red:false},{s:"♥",red:true},
- {s:"♦",red:true},{s:"♣",red:false}
+<section id="auth" class="panel">
+<h2 class="gold">Player Login / Register</h2>
+<input id="username" placeholder="Username">
+<input id="password" type="password" placeholder="Password">
+<button onclick="playerAuth('login')">Login</button>
+<button class="alt" onclick="playerAuth('register')">Register</button>
+<button class="alt" onclick="showAdminLogin()">Admin Login</button>
+<p id="authMsg"></p>
+</section>
+
+<section id="player" class="hide">
+<div class="panel">
+<div id="pname"></div>
+<p>Virtual Coins: <span id="coins" class="stat">0</span></p>
+<button class="alt" onclick="loadPlayer()">Refresh</button>
+<button class="danger" onclick="logout()">Logout</button>
+</div>
+
+<div class="panel">
+<h2 class="gold">20 Different Games</h2>
+<div id="gameList" class="games"></div>
+</div>
+
+<div id="playPanel" class="panel hide">
+<h2 id="gameName" class="gold"></h2>
+<div id="gameArea"></div>
+<button class="alt" onclick="playPanel.classList.add('hide')">Back</button>
+</div>
+
+<div class="panel">
+<h3 class="gold">Request Virtual Coins</h3>
+<input id="requestAmount" type="number" placeholder="Enter amount">
+<button onclick="requestCoins()">Submit Request</button>
+<p id="requestMsg"></p>
+</div>
+
+<div class="panel">
+<h3 class="gold">My Activity</h3>
+<button class="alt" onclick="loadHistory()">Refresh History</button>
+<div id="history"></div>
+</div>
+</section>
+
+<section id="adminLogin" class="panel hide">
+<h2 class="gold">Admin Login</h2>
+<input id="adminUser" placeholder="Admin Username">
+<input id="adminPass" type="password" placeholder="Admin Password">
+<button onclick="adminAuth()">Login</button>
+<button class="alt" onclick="backAuth()">Back</button>
+<p id="adminMsg"></p>
+</section>
+
+<section id="admin" class="hide">
+<div class="panel">
+<h2 class="gold">Admin Dashboard</h2>
+<button class="danger" onclick="logout()">Logout</button>
+<div id="overview"></div>
+</div>
+<div class="panel">
+<h3 class="gold">Players & Coin Management</h3>
+<button class="alt" onclick="loadAdmin()">Refresh</button>
+<div id="players"></div>
+</div>
+<div class="panel">
+<h3 class="gold">Coin Requests</h3>
+<div id="requests"></div>
+</div>
+</section>
+</main>
+
+<footer>RUMMY LIVE • Virtual Coins Only • No Cash Withdrawal</footer>
+
+<script>
+const API=location.origin;
+let token=localStorage.getItem("rl_token")||"";
+let role=localStorage.getItem("rl_role")||"";
+
+const $=id=>document.getElementById(id);
+
+const games=[
+"Rummy","Teen Patti","Roulette","Dragon Tiger",
+"Andar Bahar","Poker","Blackjack","Baccarat",
+"Slots","Dice","Lucky 7","Hi-Lo","Coin Toss",
+"Number Guess","Red & Black","Wheel Spin",
+"Memory Match","Lucky Draw","Color Prediction","Quick 21"
 ];
 
-function shuffle(a){
- for(let i=a.length-1;i>0;i--){
- let j=Math.floor(Math.random()*(i+1));
- [a[i],a[j]]=[a[j],a[i]];
- }
- return a;
+async function api(path,opt={}){
+let r=await fetch(API+path,{
+...opt,
+headers:{"Content-Type":"application/json",
+...(token?{Authorization:"Bearer "+token}:{})}
+});
+let d=await r.json();
+if(!r.ok)throw Error(d.error||"Request failed");
+return d;
 }
 
-function name(c){
- return (c.n===1?"A":c.n===11?"J":c.n===12?"Q":c.n===13?"K":c.n)+c.s;
+function hideAll(){
+["auth","player","adminLogin","admin"].forEach(x=>$(x).classList.add("hide"));
+}
+function backAuth(){
+hideAll();$("auth").classList.remove("hide");
+}
+function showAdminLogin(){
+hideAll();$("adminLogin").classList.remove("hide");
 }
 
-function makeDeck(){
- let d=[];
- for(let s of suits){
- for(let n=1;n<=13;n++){
- d.push({n,s:s.s,red:s.red});
- }
- }
- return shuffle(d);
+async function playerAuth(action){
+try{
+let d=await api("/api/"+action,{
+method:"POST",
+body:JSON.stringify({
+username:$("username").value.trim(),
+password:$("password").value
+})
+});
+token=d.token;
+role="player";
+localStorage.setItem("rl_token",token);
+localStorage.setItem("rl_role",role);
+await loadPlayer();
+}catch(e){$("authMsg").textContent=e.message;}
 }
 
-function newGame(){
- deck=makeDeck();
- hand=deck.splice(0,13);
- discard=[deck.pop()];
- selected=-1;
- drawn=false;
- message("Your turn: Pick one card");
- render();
+async function adminAuth(){
+try{
+let d=await api("/api/admin/login",{
+method:"POST",
+body:JSON.stringify({
+username:$("adminUser").value,
+password:$("adminPass").value
+})
+});
+token=d.token;role="admin";
+localStorage.setItem("rl_token",token);
+localStorage.setItem("rl_role",role);
+await loadAdmin();
+}catch(e){$("adminMsg").textContent=e.message;}
 }
 
-function message(t){
- document.getElementById("message").innerText=t;
+async function loadPlayer(){
+try{
+let d=await api("/api/me");
+let p=d.player||d;
+hideAll();
+$("player").classList.remove("hide");
+$("pname").textContent=p.username;
+$("coins").textContent=p.coins;
+renderGames();
+loadHistory();
+}catch(e){logout();$("authMsg").textContent=e.message;}
 }
 
-function render(){
- document.getElementById("hand").innerHTML=
- hand.map((c,i)=>`
- <div class="card ${c.red?'red':''} ${selected===i?'selected':''}"
- onclick="selectCard(${i})">
- <span>${name(c)}</span><span>${name(c)}</span>
- </div>`).join("");
-
- let c=discard[discard.length-1];
- document.getElementById("discard").innerHTML=c?
- `<div class="card ${c.red?'red':''}">${name(c)}</div>`:"";
-
- document.getElementById("stock").innerText=deck.length+" Cards";
- document.getElementById("stockBtn").disabled=drawn;
- document.getElementById("pileBtn").disabled=drawn||!discard.length;
- document.getElementById("throwBtn").disabled=!drawn||selected<0;
+function renderGames(){
+$("gameList").innerHTML=games.map((g,i)=>
+`<button class="game" onclick="openGame(${i})">
+<b>${i+1}. ${g}</b>
+<span>Play Practice Game</span>
+</button>`).join("");
 }
 
-function selectCard(i){
- selected=i;
- render();
+async function requestCoins(){
+try{
+await api("/api/coin-request",{
+method:"POST",
+body:JSON.stringify({amount:Number($("requestAmount").value)})
+});
+$("requestMsg").textContent="Request submitted!";
+}catch(e){$("requestMsg").textContent=e.message;}
 }
 
-function draw(fromPile){
- if(drawn)return;
- if(fromPile){
- if(!discard.length)return;
- hand.push(discard.pop());
- }else{
- if(!deck.length){
- message("Cards finished. Start a new game.");
- return;
- }
- hand.push(deck.pop());
- }
- drawn=true;
- selected=-1;
- message("Select a card to discard");
- render();
+async function loadHistory(){
+try{
+let d=await api("/api/history");
+let rows=d.history||[];
+$("history").innerHTML=rows.map(x=>
+`<p>${x.action} - ${x.amount}</p>`).join("")||"No activity yet";
+}catch(e){$("history").textContent=e.message;}
 }
 
-function throwCard(){
- if(!drawn||selected<0)return;
- discard.push(hand.splice(selected,1)[0]);
- selected=-1;
- drawn=false;
- message("Computer is playing...");
- render();
- setTimeout(()=>{
- if(deck.length){
- deck.pop();
- if(deck.length)discard.push(deck.pop());
- }
- message("Your turn: Pick one card");
- render();
- },1000);
+async function loadAdmin(){
+try{
+let [o,p,q]=await Promise.all([
+api("/api/admin/overview"),
+api("/api/admin/players"),
+api("/api/admin/requests")
+]);
+hideAll();
+$("admin").classList.remove("hide");
+$("overview").textContent=
+"Players: "+o.players+" | Total Coins: "+o.total_coins+
+" | Pending Requests: "+o.pending_requests;
+
+$("players").innerHTML=(p.players||[]).map(x=>
+`<p>${x.id}. ${x.username} | Coins: ${x.coins}
+<input id="coin${x.id}" type="number" placeholder="+/- coins">
+<button onclick="changeCoins(${x.id})">Apply</button></p>`
+).join("");
+
+$("requests").innerHTML=(q.requests||[]).map(x=>
+`<p>${x.username} | ${x.amount} | ${x.status}
+${x.status==="pending"?
+`<button onclick="requestAction(${x.id},'approve')">Approve</button>
+<button class="danger" onclick="requestAction(${x.id},'reject')">Reject</button>`:""}
+</p>`).join("");
+}catch(e){$("adminMsg").textContent=e.message;}
 }
 
-newGame();
+async function changeCoins(id){
+try{
+await api("/api/admin/coins",{
+method:"POST",
+body:JSON.stringify({
+playerId:id,
+amount:Number($("coin"+id).value)
+})
+});
+loadAdmin();
+}catch(e){alert(e.message);}
+}
+
+async function requestAction(id,action){
+try{
+await api(`/api/admin/requests/${id}/${action}`,{
+method:"POST",body:"{}"
+});
+loadAdmin();
+}catch(e){alert(e.message);}
+}
+
+function logout(){
+token="";role="";
+localStorage.removeItem("rl_token");
+localStorage.removeItem("rl_role");
+hideAll();$("auth").classList.remove("hide");
+}
+
+function random(n){return Math.floor(Math.random()*n);}
+function output(t){
+let d=document.createElement("div");
+d.className="result";d.textContent=t;
+$("gameArea").appendChild(d);
+}
+function btn(t,fn){
+let b=document.createElement("button");
+b.textContent=t;b.onclick=fn;
+$("gameArea").appendChild(b);
+}
+
+async function openGame(i){
+let g=games[i];
+$("playPanel").classList.remove("hide");
+$("gameName").textContent=g;
+$("gameArea").innerHTML="";
+try{
+await api("/api/play",{
+method:"POST",
+body:JSON.stringify({game:g})
+});
+}catch(e){}
+
+let area=$("gameArea");
+
+if(g==="Rummy"){
+let deck=[];
+let suits=["♠","♥","♦","♣"];
+let ranks=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
+suits.forEach(s=>ranks.forEach(r=>deck.push(r+s)));
+deck.sort(()=>Math.random()-.5);
+let hand=deck.splice(0,13);
+function showHand(){
+area.innerHTML='<p>13 Card Hand</p><div class="cards">'+
+hand.map(c=>`<span class="card">${c}</span>`).join("")+
+'</div>';
+btn("Draw Card",()=>{hand.push(deck.pop());showHand();});
+btn("Discard Card",()=>{hand.pop();showHand();});
+btn("New Hand",()=>openGame(0));
+}
+showHand();return;
+}
+
+if(g==="Teen Patti"){
+btn("Deal Cards",()=>output("Your Cards: "+
+(random(13)+1)+" / "+(random(13)+1)+" / "+(random(13)+1)));
+}
+else if(g==="Roulette"){
+["Red","Black","Green"].forEach(c=>
+btn(c,()=>{
+let n=random(37);
+output("Number: "+n+" | "+(n===0?"Green":
+([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(n)?"Red":"Black")));
+}));
+}
+else if(g==="Dragon Tiger"){
+btn("Deal",()=>{
+let a=random(13)+1,b=random(13)+1;
+output("Dragon: "+a+" | Tiger: "+b+" | "+
+(a>b?"Dragon wins":b>a?"Tiger wins":"Tie"));
+});
+}
+else if(g==="Andar Bahar"){
+btn("Start Round",()=>output(random(2)?"Andar Wins":"Bahar Wins"));
+}
+else if(g==="Poker"){
+btn("Deal Five Cards",()=>{
+let a=Array.from({length:5},()=>random(13)+1);
+output("Your cards: "+a.join(" - "));
+});
+}
+else if(g==="Blackjack"||g==="Quick 21"){
+let total=random(10)+1;
+output("Your total: "+total);
+btn("Hit",()=>{total+=random(10)+1;output("Total: "+total+(total>21?" Bust!":""));});
+btn("Stand",()=>output("You stand at "+total));
+}
+else if(g==="Baccarat"){
+btn("Deal",()=>{
+let p=random(10),b=random(10);
+output("Player: "+p+" | Banker: "+b+" | "+(p>b?"Player wins":b>p?"Banker wins":"Tie"));
+});
+}
+else if(g==="Slots"){
+btn("Spin",()=>{
+let s=["🍒","🍋","🔔","⭐","7️⃣"];
+output(s[random(5)]+" "+s[random(5)]+" "+s[random(5)]);
+});
+}
+else if(g==="Dice"||g==="Lucky 7"){
+btn("Roll Dice",()=>{
+let a=random(6)+1,b=random(6)+1;
+output(a+" + "+b+" = "+(a+b));
+});
+}
+else if(g==="Hi-Lo"){
+let n=random(13)+1;
+output("Current card: "+n);
+btn("Higher",()=>output("Next card: "+(random(13)+1)));
+btn("Lower",()=>output("Next card: "+(random(13)+1)));
+}
+else if(g==="Coin Toss"){
+btn("Toss",()=>output(Math.random()<.5?"Heads":"Tails"));
+}
+else if(g==="Number Guess"){
+let n=random(10)+1;
+for(let x=1;x<=10;x++){
+btn(x,()=>output(x===n?"Correct!":"Wrong! Number was "+n));
+}
+}
+else if(g==="Red & Black"||g==="Color Prediction"){
+["Red","Black","Green"].forEach(c=>
+btn(c,()=>output(["Red","Black","Green"][random(3)])));
+}
+else if(g==="Wheel Spin"){
+btn("Spin Wheel",()=>output("Wheel: "+(random(8)+1)));
+}
+else if(g==="Memory Match"){
+let n=random(9)+1;
+output("Remember this number: "+n);
+btn("Test Memory",()=>{
+let x=prompt("Enter remembered number");
+output(Number(x)===n?"Correct!":"Number was "+n);
+});
+}
+else if(g==="Lucky Draw"){
+btn("Draw",()=>output("Lucky number: "+(random(100)+1)));
+}
+}
+
+if(token){
+if(role==="admin")loadAdmin();
+else loadPlayer();
+}
 </script>
 </body>
 </html>
