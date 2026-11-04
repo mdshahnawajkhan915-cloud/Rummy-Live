@@ -1,120 +1,119 @@
-<!DOCTYPE html>
-<html lang="en">
+<!doctype html>
+<html>
 <head>
-<meta charset="UTF-8">
+<meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>RUMMY LIVE</title>
 <style>
 *{box-sizing:border-box}
-body{margin:0;background:#071b16;color:white;font-family:Arial}
-header{background:#09291e;text-align:center;padding:20px;border-bottom:2px solid #d8b64f}
-h1{color:#f4cf67;margin:0;letter-spacing:3px}
+body{margin:0;background:#071b16;color:#f5f5f0;font:15px Arial}
+header{padding:18px;text-align:center;background:#09291e;border-bottom:2px solid #d8b64f}
+h1,.gold{color:#f4cf67}
 main{max-width:950px;margin:auto;padding:12px}
-.panel{background:#102b23;border:1px solid #315748;border-radius:13px;padding:15px;margin:12px 0}
+.box{background:#102b23;border:1px solid #315748;border-radius:12px;padding:14px;margin:12px 0}
+.row{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.grow{flex:1}
 input{width:100%;padding:12px;margin:5px 0;background:#071b16;color:white;border:1px solid #315748;border-radius:8px}
-button{padding:12px;margin:4px;border:0;border-radius:8px;background:#f4cf67;color:#17251c;font-weight:bold;cursor:pointer}
+button{padding:11px 13px;margin:3px;border:0;border-radius:8px;background:#f4cf67;font-weight:bold}
 .alt{background:#285443;color:white}
 .danger{background:#853c3c;color:white}
-.gold{color:#f4cf67}
-.muted{color:#b8c8bf}
 .hide{display:none}
-.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:9px}
-.game{background:#174333;color:white;border:1px solid #396451;text-align:left;min-height:75px}
-.game b{display:block;color:#f4cf67;margin-bottom:6px}
-.result{font-size:21px;color:#f4cf67;margin:18px}
-.cards{display:flex;gap:5px;justify-content:center;flex-wrap:wrap}
-.card{background:white;color:#111;padding:12px;border-radius:6px}
-.stat{font-size:24px;color:#f4cf67}
+.games{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:8px}
+.game{background:#174333;color:white;text-align:left;min-height:65px}
+.game b{display:block;color:#f4cf67}
+.muted{color:#b8c8bf}
+.result{font-size:20px;color:#f4cf67;margin:12px}
+.cards{display:flex;gap:5px;flex-wrap:wrap}
+.card{background:white;color:#111;padding:10px;border-radius:6px}
 table{width:100%;font-size:13px}
-td,th{padding:8px;border-bottom:1px solid #315748;text-align:left}
-footer{text-align:center;padding:20px;color:#b8c8bf}
+td{padding:6px;border-bottom:1px solid #315748}
+@media(max-width:450px){.games{grid-template-columns:repeat(2,1fr)}}
 </style>
 </head>
 <body>
+
 <header>
 <h1>RUMMY LIVE</h1>
-<p class="muted">20 Virtual Practice Games</p>
+<small>Virtual practice • No cash withdrawal</small>
 </header>
-<main>
 
-<section id="auth" class="panel">
+<main>
+<section id="auth" class="box">
 <h2 class="gold">Player Login / Register</h2>
-<input id="username" placeholder="Username">
-<input id="password" type="password" placeholder="Password">
-<button onclick="playerAuth('login')">Login</button>
-<button class="alt" onclick="playerAuth('register')">Register</button>
-<button class="alt" onclick="showAdminLogin()">Admin Login</button>
-<p id="authMsg"></p>
+<input id="u" placeholder="Username">
+<input id="p" type="password" placeholder="Password">
+<button onclick="login('login')">Login</button>
+<button class="alt" onclick="login('register')">Register</button>
+<button class="alt" onclick="show('adminLogin')">Admin Login</button>
+<p id="msg"></p>
 </section>
 
 <section id="player" class="hide">
-<div class="panel">
-<div id="pname"></div>
-<p>Virtual Coins: <span id="coins" class="stat">0</span></p>
-<button class="alt" onclick="loadPlayer()">Refresh</button>
+<div class="box row">
+<div class="grow">
+<b id="who"></b>
+<div class="muted">Virtual coins</div>
+</div>
+<strong class="gold" id="bal">0</strong>
+<button class="alt" onclick="me()">Refresh</button>
 <button class="danger" onclick="logout()">Logout</button>
 </div>
 
-<div class="panel">
-<h2 class="gold">20 Different Games</h2>
-<div id="gameList" class="games"></div>
+<div class="box">
+<h2 class="gold">20 Games</h2>
+<div id="games" class="games"></div>
 </div>
 
-<div id="playPanel" class="panel hide">
-<h2 id="gameName" class="gold"></h2>
+<div class="box">
+<h2 id="gtitle" class="gold"></h2>
+<p id="roomInfo" class="muted"></p>
 <div id="gameArea"></div>
-<button class="alt" onclick="playPanel.classList.add('hide')">Back</button>
 </div>
 
-<div class="panel">
-<h3 class="gold">Request Virtual Coins</h3>
-<input id="requestAmount" type="number" placeholder="Enter amount">
-<button onclick="requestCoins()">Submit Request</button>
-<p id="requestMsg"></p>
+<div class="box">
+<h3 class="gold">Coin Request</h3>
+<input id="amount" type="number" placeholder="Amount">
+<button onclick="requestCoins()">Send request</button>
+<p id="reqmsg"></p>
 </div>
 
-<div class="panel">
-<h3 class="gold">My Activity</h3>
-<button class="alt" onclick="loadHistory()">Refresh History</button>
-<div id="history"></div>
+<div class="box">
+<h3 class="gold">Activity</h3>
+<button class="alt" onclick="history()">Refresh</button>
+<div id="hist"></div>
 </div>
 </section>
 
-<section id="adminLogin" class="panel hide">
+<section id="adminLogin" class="box hide">
 <h2 class="gold">Admin Login</h2>
-<input id="adminUser" placeholder="Admin Username">
-<input id="adminPass" type="password" placeholder="Admin Password">
-<button onclick="adminAuth()">Login</button>
-<button class="alt" onclick="backAuth()">Back</button>
-<p id="adminMsg"></p>
+<input id="au" placeholder="Admin username">
+<input id="ap" type="password" placeholder="Admin password">
+<button onclick="adminLogin()">Login</button>
+<button class="alt" onclick="show('auth')">Back</button>
+<p id="amsg"></p>
 </section>
 
 <section id="admin" class="hide">
-<div class="panel">
-<h2 class="gold">Admin Dashboard</h2>
+<div class="box">
+<h2 class="gold">Admin Panel</h2>
+<button class="alt" onclick="adminLoad()">Refresh</button>
 <button class="danger" onclick="logout()">Logout</button>
-<div id="overview"></div>
+<div id="stats"></div>
 </div>
-<div class="panel">
-<h3 class="gold">Players & Coin Management</h3>
-<button class="alt" onclick="loadAdmin()">Refresh</button>
-<div id="players"></div>
+<div class="box">
+<h3>Players / Coin Control</h3>
+<div id="plist"></div>
 </div>
-<div class="panel">
-<h3 class="gold">Coin Requests</h3>
-<div id="requests"></div>
+<div class="box">
+<h3>Coin Requests</h3>
+<div id="rlist"></div>
 </div>
 </section>
 </main>
 
-<footer>RUMMY LIVE • Virtual Coins Only • No Cash Withdrawal</footer>
-
+<script src="/socket.io/socket.io.js"></script>
 <script>
-const API=location.origin;
-let token=localStorage.getItem("rl_token")||"";
-let role=localStorage.getItem("rl_role")||"";
-
-const $=id=>document.getElementById(id);
+const $=x=>document.getElementById(x);
 
 const games=[
 "Rummy","Teen Patti","Roulette","Dragon Tiger",
@@ -124,291 +123,316 @@ const games=[
 "Memory Match","Lucky Draw","Color Prediction","Quick 21"
 ];
 
-async function api(path,opt={}){
-let r=await fetch(API+path,{
-...opt,
-headers:{"Content-Type":"application/json",
-...(token?{Authorization:"Bearer "+token}:{})}
+let token=localStorage.getItem("rl_token")||"";
+let role=localStorage.getItem("rl_role")||"";
+let sock,room=null;
+
+function show(id){
+["auth","player","adminLogin","admin"].forEach(x=>$(x).classList.add("hide"));
+$(id).classList.remove("hide");
+}
+
+async function api(path,opts={}){
+let r=await fetch(path,{
+...opts,
+headers:{
+"Content-Type":"application/json",
+...(token?{Authorization:"Bearer "+token}:{})
+}
 });
 let d=await r.json();
 if(!r.ok)throw Error(d.error||"Request failed");
 return d;
 }
 
-function hideAll(){
-["auth","player","adminLogin","admin"].forEach(x=>$(x).classList.add("hide"));
-}
-function backAuth(){
-hideAll();$("auth").classList.remove("hide");
-}
-function showAdminLogin(){
-hideAll();$("adminLogin").classList.remove("hide");
-}
-
-async function playerAuth(action){
+async function login(a){
 try{
-let d=await api("/api/"+action,{
+let d=await api("/api/"+a,{
 method:"POST",
 body:JSON.stringify({
-username:$("username").value.trim(),
-password:$("password").value
+username:$("u").value,
+password:$("p").value
 })
 });
 token=d.token;
 role="player";
-localStorage.setItem("rl_token",token);
-localStorage.setItem("rl_role",role);
-await loadPlayer();
-}catch(e){$("authMsg").textContent=e.message;}
+save();
+await me();
+}catch(e){
+$("msg").textContent=e.message;
+}
 }
 
-async function adminAuth(){
+async function adminLogin(){
 try{
 let d=await api("/api/admin/login",{
 method:"POST",
 body:JSON.stringify({
-username:$("adminUser").value,
-password:$("adminPass").value
+username:$("au").value,
+password:$("ap").value
 })
 });
-token=d.token;role="admin";
-localStorage.setItem("rl_token",token);
-localStorage.setItem("rl_role",role);
-await loadAdmin();
-}catch(e){$("adminMsg").textContent=e.message;}
+token=d.token;
+role="admin";
+save();
+adminLoad();
+}catch(e){
+$("amsg").textContent=e.message;
+}
 }
 
-async function loadPlayer(){
+function save(){
+localStorage.setItem("rl_token",token);
+localStorage.setItem("rl_role",role);
+}
+
+function connect(){
+if(sock)sock.disconnect();
+sock=io({auth:{token}});
+sock.on("room:update",r=>room=r);
+sock.on("game:started",r=>{
+room=r;
+renderRoom();
+});
+sock.on("game:state",s=>renderState(s));
+}
+
+async function me(){
 try{
 let d=await api("/api/me");
-let p=d.player||d;
-hideAll();
-$("player").classList.remove("hide");
-$("pname").textContent=p.username;
-$("coins").textContent=p.coins;
+let p=d.player;
+show("player");
+$("who").textContent=p.username;
+$("bal").textContent=p.coins;
 renderGames();
-loadHistory();
-}catch(e){logout();$("authMsg").textContent=e.message;}
+connect();
+history();
+}catch(e){
+logout();
+$("msg").textContent=e.message;
+}
 }
 
 function renderGames(){
-$("gameList").innerHTML=games.map((g,i)=>
-`<button class="game" onclick="openGame(${i})">
+$("games").innerHTML=games.map((g,i)=>
+`<button class="game" onclick="chooseGame(${i})">
 <b>${i+1}. ${g}</b>
-<span>Play Practice Game</span>
-</button>`).join("");
+<small>Multiplayer table</small>
+</button>`
+).join("");
+}
+
+function chooseGame(i){
+let g=games[i];
+$("gtitle").textContent=g;
+$("gameArea").innerHTML="";
+$("roomInfo").textContent="Create a table or join an open table.";
+
+let a=document.createElement("button");
+a.textContent="Create table";
+a.onclick=()=>{
+sock.emit("room:create",{game:g},r=>{
+if(r.ok){
+room=r.room;
+renderRoom();
+}else alert(r.error);
+});
+};
+$("gameArea").append(a);
+
+let b=document.createElement("button");
+b.textContent="Find tables";
+b.className="alt";
+b.onclick=()=>{
+sock.emit("room:list",rs=>{
+let area=$("gameArea");
+area.innerHTML="";
+rs.filter(x=>x.game===g).forEach(x=>{
+let z=document.createElement("button");
+z.textContent="Join "+x.id+" ("+x.players.length+" players)";
+z.onclick=()=>{
+sock.emit("room:join",{roomId:x.id},r=>{
+if(r.ok){
+room=r.room;
+renderRoom();
+}else alert(r.error);
+});
+};
+area.append(z);
+});
+});
+};
+$("gameArea").append(b);
+}
+
+function renderRoom(){
+if(!room)return;
+$("roomInfo").textContent="Table "+room.id+" • "+room.game+" • "+room.players.map(p=>p.username).join(", ");
+let area=$("gameArea");
+area.innerHTML="";
+let start=document.createElement("button");
+start.textContent="Start game";
+start.onclick=()=>{
+sock.emit("game:start",{roomId:room.id},r=>{
+if(r.ok)renderState(r.state);
+else alert(r.error);
+});
+};
+area.append(start);
+}
+
+function renderState(s){
+if(!s)return;
+room=s.room;
+$("roomInfo").textContent="Table "+room.id+" • "+room.game+" • Players: "+room.players.map(p=>p.username).join(", ");
+
+let a=$("gameArea");
+a.innerHTML="";
+
+let hand=document.createElement("div");
+hand.className="cards";
+(s.hand||[]).forEach((c,i)=>{
+let x=document.createElement("span");
+x.className="card";
+x.textContent=c.r+c.s;
+x.dataset.index=i;
+hand.append(x);
+});
+a.append(hand);
+
+const act=(label,action,payload={})=>{
+let b=document.createElement("button");
+b.textContent=label;
+b.onclick=()=>{
+sock.emit("game:action",{roomId:room.id,action,payload},r=>{
+if(r.ok)renderState(r.state);
+else alert(r.error);
+});
+};
+a.append(b);
+};
+
+let g=room.game;
+
+if(g==="Rummy"){
+act("Draw from deck","draw");
+act("Draw discard","draw",{fromDiscard:true});
+act("Discard first card","discard",{index:0});
+}
+else if(["Teen Patti","Poker","Baccarat","Dragon Tiger"].includes(g)){
+act("Reveal result","show");
+}
+else if(g==="Roulette"||g==="Slots"){
+act("Spin","spin");
+}
+else if(g==="Andar Bahar"){
+act("Draw next card","draw");
+}
+else if(["Blackjack","Quick 21"].includes(g)){
+act("Hit","hit");
+act("Stand","stand");
+}
+else{
+act("Play round","play");
+}
+
+let pre=document.createElement("pre");
+pre.style.whiteSpace="pre-wrap";
+pre.textContent=JSON.stringify(room.state||{},null,2);
+a.append(pre);
 }
 
 async function requestCoins(){
 try{
 await api("/api/coin-request",{
 method:"POST",
-body:JSON.stringify({amount:Number($("requestAmount").value)})
+body:JSON.stringify({amount:Number($("amount").value)})
 });
-$("requestMsg").textContent="Request submitted!";
-}catch(e){$("requestMsg").textContent=e.message;}
+$("reqmsg").textContent="Request sent";
+}catch(e){
+$("reqmsg").textContent=e.message;
+}
 }
 
-async function loadHistory(){
+async function history(){
 try{
 let d=await api("/api/history");
-let rows=d.history||[];
-$("history").innerHTML=rows.map(x=>
-`<p>${x.action} - ${x.amount}</p>`).join("")||"No activity yet";
-}catch(e){$("history").textContent=e.message;}
+$("hist").innerHTML=(d.history||[]).map(x=>
+`<p>${x.action} • ${x.amount}</p>`
+).join("")||"No activity";
+}catch(e){}
 }
 
-async function loadAdmin(){
+async function adminLoad(){
 try{
 let [o,p,q]=await Promise.all([
 api("/api/admin/overview"),
 api("/api/admin/players"),
 api("/api/admin/requests")
 ]);
-hideAll();
-$("admin").classList.remove("hide");
-$("overview").textContent=
-"Players: "+o.players+" | Total Coins: "+o.total_coins+
-" | Pending Requests: "+o.pending_requests;
 
-$("players").innerHTML=(p.players||[]).map(x=>
-`<p>${x.id}. ${x.username} | Coins: ${x.coins}
-<input id="coin${x.id}" type="number" placeholder="+/- coins">
-<button onclick="changeCoins(${x.id})">Apply</button></p>`
+show("admin");
+$("stats").textContent="Players "+o.players+
+" • Total coins "+o.total_coins+
+" • Pending "+o.pending_requests;
+
+$("plist").innerHTML=(p.players||[]).map(x=>
+`<p>${x.username} (${x.coins})
+<input id="c${x.id}" type="number" placeholder="+/- coins">
+<button onclick="coin(${x.id})">Apply</button></p>`
 ).join("");
 
-$("requests").innerHTML=(q.requests||[]).map(x=>
-`<p>${x.username} | ${x.amount} | ${x.status}
+$("rlist").innerHTML=(q.requests||[]).map(x=>
+`<p>${x.username} • ${x.amount} • ${x.status}
 ${x.status==="pending"?
-`<button onclick="requestAction(${x.id},'approve')">Approve</button>
-<button class="danger" onclick="requestAction(${x.id},'reject')">Reject</button>`:""}
-</p>`).join("");
-}catch(e){$("adminMsg").textContent=e.message;}
+`<button onclick="req(${x.id},'approve')">Approve</button>
+<button onclick="req(${x.id},'reject')">Reject</button>`:""}
+</p>`
+).join("");
+
+}catch(e){
+$("amsg").textContent=e.message;
+}
 }
 
-async function changeCoins(id){
+async function coin(id){
 try{
 await api("/api/admin/coins",{
 method:"POST",
 body:JSON.stringify({
 playerId:id,
-amount:Number($("coin"+id).value)
+amount:Number($("c"+id).value)
 })
 });
-loadAdmin();
-}catch(e){alert(e.message);}
+adminLoad();
+}catch(e){
+alert(e.message);
+}
 }
 
-async function requestAction(id,action){
+async function req(id,a){
 try{
-await api(`/api/admin/requests/${id}/${action}`,{
-method:"POST",body:"{}"
+await api(`/api/admin/requests/${id}/${a}`,{
+method:"POST",
+body:"{}"
 });
-loadAdmin();
-}catch(e){alert(e.message);}
+adminLoad();
+}catch(e){
+alert(e.message);
+}
 }
 
 function logout(){
-token="";role="";
+token="";
+role="";
 localStorage.removeItem("rl_token");
 localStorage.removeItem("rl_role");
-hideAll();$("auth").classList.remove("hide");
-}
-
-function random(n){return Math.floor(Math.random()*n);}
-function output(t){
-let d=document.createElement("div");
-d.className="result";d.textContent=t;
-$("gameArea").appendChild(d);
-}
-function btn(t,fn){
-let b=document.createElement("button");
-b.textContent=t;b.onclick=fn;
-$("gameArea").appendChild(b);
-}
-
-async function openGame(i){
-let g=games[i];
-$("playPanel").classList.remove("hide");
-$("gameName").textContent=g;
-$("gameArea").innerHTML="";
-try{
-await api("/api/play",{
-method:"POST",
-body:JSON.stringify({game:g})
-});
-}catch(e){}
-
-let area=$("gameArea");
-
-if(g==="Rummy"){
-let deck=[];
-let suits=["♠","♥","♦","♣"];
-let ranks=["A","2","3","4","5","6","7","8","9","10","J","Q","K"];
-suits.forEach(s=>ranks.forEach(r=>deck.push(r+s)));
-deck.sort(()=>Math.random()-.5);
-let hand=deck.splice(0,13);
-function showHand(){
-area.innerHTML='<p>13 Card Hand</p><div class="cards">'+
-hand.map(c=>`<span class="card">${c}</span>`).join("")+
-'</div>';
-btn("Draw Card",()=>{hand.push(deck.pop());showHand();});
-btn("Discard Card",()=>{hand.pop();showHand();});
-btn("New Hand",()=>openGame(0));
-}
-showHand();return;
-}
-
-if(g==="Teen Patti"){
-btn("Deal Cards",()=>output("Your Cards: "+
-(random(13)+1)+" / "+(random(13)+1)+" / "+(random(13)+1)));
-}
-else if(g==="Roulette"){
-["Red","Black","Green"].forEach(c=>
-btn(c,()=>{
-let n=random(37);
-output("Number: "+n+" | "+(n===0?"Green":
-([1,3,5,7,9,12,14,16,18,19,21,23,25,27,30,32,34,36].includes(n)?"Red":"Black")));
-}));
-}
-else if(g==="Dragon Tiger"){
-btn("Deal",()=>{
-let a=random(13)+1,b=random(13)+1;
-output("Dragon: "+a+" | Tiger: "+b+" | "+
-(a>b?"Dragon wins":b>a?"Tiger wins":"Tie"));
-});
-}
-else if(g==="Andar Bahar"){
-btn("Start Round",()=>output(random(2)?"Andar Wins":"Bahar Wins"));
-}
-else if(g==="Poker"){
-btn("Deal Five Cards",()=>{
-let a=Array.from({length:5},()=>random(13)+1);
-output("Your cards: "+a.join(" - "));
-});
-}
-else if(g==="Blackjack"||g==="Quick 21"){
-let total=random(10)+1;
-output("Your total: "+total);
-btn("Hit",()=>{total+=random(10)+1;output("Total: "+total+(total>21?" Bust!":""));});
-btn("Stand",()=>output("You stand at "+total));
-}
-else if(g==="Baccarat"){
-btn("Deal",()=>{
-let p=random(10),b=random(10);
-output("Player: "+p+" | Banker: "+b+" | "+(p>b?"Player wins":b>p?"Banker wins":"Tie"));
-});
-}
-else if(g==="Slots"){
-btn("Spin",()=>{
-let s=["🍒","🍋","🔔","⭐","7️⃣"];
-output(s[random(5)]+" "+s[random(5)]+" "+s[random(5)]);
-});
-}
-else if(g==="Dice"||g==="Lucky 7"){
-btn("Roll Dice",()=>{
-let a=random(6)+1,b=random(6)+1;
-output(a+" + "+b+" = "+(a+b));
-});
-}
-else if(g==="Hi-Lo"){
-let n=random(13)+1;
-output("Current card: "+n);
-btn("Higher",()=>output("Next card: "+(random(13)+1)));
-btn("Lower",()=>output("Next card: "+(random(13)+1)));
-}
-else if(g==="Coin Toss"){
-btn("Toss",()=>output(Math.random()<.5?"Heads":"Tails"));
-}
-else if(g==="Number Guess"){
-let n=random(10)+1;
-for(let x=1;x<=10;x++){
-btn(x,()=>output(x===n?"Correct!":"Wrong! Number was "+n));
-}
-}
-else if(g==="Red & Black"||g==="Color Prediction"){
-["Red","Black","Green"].forEach(c=>
-btn(c,()=>output(["Red","Black","Green"][random(3)])));
-}
-else if(g==="Wheel Spin"){
-btn("Spin Wheel",()=>output("Wheel: "+(random(8)+1)));
-}
-else if(g==="Memory Match"){
-let n=random(9)+1;
-output("Remember this number: "+n);
-btn("Test Memory",()=>{
-let x=prompt("Enter remembered number");
-output(Number(x)===n?"Correct!":"Number was "+n);
-});
-}
-else if(g==="Lucky Draw"){
-btn("Draw",()=>output("Lucky number: "+(random(100)+1)));
-}
+if(sock)sock.disconnect();
+show("auth");
 }
 
 if(token){
-if(role==="admin")loadAdmin();
-else loadPlayer();
+role==="admin"?adminLoad():me();
 }
 </script>
 </body>
